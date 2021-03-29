@@ -22,9 +22,9 @@
     </div>
 </div>
 @{
-    if (Model.Resturants != null && Model.Resturants.Any())
+    if (Model.Restaurants != null && Model.Restaurants.Any())
     {
-        await Html.RenderPartialAsync("ResturantsPartialView", Model.Resturants);
+        await Html.RenderPartialAsync("ResturantsPartialView", Model.Restaurants);
     }
     else
     {

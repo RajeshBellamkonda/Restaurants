@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Restaurants.JustEat.Client.Models;
 using RestSharp;
 using System;
@@ -26,7 +27,13 @@ namespace Restaurants.JustEat.Client
                 if (result.IsSuccessStatusCode)
                 {
                     string restaurantsByPostCodeJson = await result.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<RestaurantsByPostCode>(restaurantsByPostCodeJson);
+                    return JsonConvert.DeserializeObject<RestaurantsByPostCode>(restaurantsByPostCodeJson, new JsonSerializerSettings
+                    {
+                        Error = (object sender, ErrorEventArgs args) =>
+                        {
+                            args.ErrorContext.Handled = true;
+                        },
+                    });
                 }
             }
             catch (Exception ex)

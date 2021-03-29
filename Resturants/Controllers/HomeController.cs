@@ -22,20 +22,18 @@ namespace Restaurants.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public IActionResult Index() { return View(new RestaurantsSearchViewModel()); }
 
+        [HttpPost]
         public async Task<IActionResult> Index(RestaurantsSearchViewModel restaurantSearchVm)
         {
-            if (!string.IsNullOrEmpty(restaurantSearchVm.PostCode))
+            if (ModelState.IsValid)
             {
                 var restaurantsByPostCode = await _restaurantsApiClient.GetRestaurantsByPostCodeAsync(restaurantSearchVm.PostCode);
                 if (restaurantsByPostCode != null)
                 {
-                    restaurantSearchVm.Resturants = _mapper.Map<List<ResturantViewModel>>(restaurantsByPostCode.Restaurants);
-                }
-                else
-                {
-                    restaurantSearchVm.ErrorMessage = $"No results found for postcode {restaurantSearchVm.PostCode}";
-                    restaurantSearchVm.DisplayError = true;
+                    restaurantSearchVm.Restaurants = _mapper.Map<List<ResturantViewModel>>(restaurantsByPostCode.Restaurants);
                 }
             }
             return View(restaurantSearchVm);
