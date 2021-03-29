@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Restaurants.JustEat.Client;
 using Restaurants.Mappers;
+using Restaurants.Services;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -26,10 +27,15 @@ namespace Restaurants
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var cacheSettings = new CacheSettings();
+            Configuration.GetSection(CacheSettings.CacheSettingsName).Bind(cacheSettings);
+            services.AddSingleton<ICacheSettings>(cacheSettings);
+
             services.AddControllersWithViews();
             services.AddTransient<IRestaurantsApiClient, RestaurantsApiClient>();
             services.AddAutoMapper(typeof(RestaurantsMapper));
             services.AddTransient<IRestClient, RestClient>();
+            services.AddTransient<IRestaurantsService, RestaurantsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

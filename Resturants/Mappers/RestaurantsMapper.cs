@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Restaurants.JustEat.Client.Models;
+using Restaurants.Services.DTOs;
 using Restaurants.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,13 @@ namespace Restaurants.Mappers
     {
         public RestaurantsMapper()
         {
-            CreateMap<Restaurant, ResturantViewModel>();
-            CreateMap<Cuisine, CuisineViewModel>();
+            // DTOs to ViewModels
+            CreateMap<RestaurantDto, RestaurantViewModel>();
+            CreateMap<CuisineDto, CuisineViewModel>();
+
+            // Models to ViewModels
+            CreateMap<Restaurant, RestaurantDto>();
+            CreateMap<Cuisine, CuisineDto>();
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace Restaurants.ViewModels
+﻿namespace Restaurants.Services.DTOs
 {
-    public class RestaurantViewModel
+    public class RestaurantDto
     {
 
         public int Id { get; set; }
@@ -9,6 +9,6 @@
         public float RatingStars { get; set; }
         public int NumberOfRatings { get; set; }
         public float RatingAverage { get; set; }
-        public CuisineViewModel[] Cuisines { get; set; }
+        public CuisineDto[] Cuisines { get; set; }
     }
 }

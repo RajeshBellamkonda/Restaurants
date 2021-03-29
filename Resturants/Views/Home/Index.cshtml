@@ -1,4 +1,6 @@
 ﻿@model Restaurants.ViewModels.RestaurantsSearchViewModel
+@using PagedList.Core.Mvc
+@using Restaurants.ViewModels
 
 @{
     ViewData["Title"] = "Resturants Search";
@@ -22,16 +24,19 @@
     </div>
 </div>
 @{
-    if (Model.Restaurants != null && Model.Restaurants.Any())
+    if (Model.DisplayError)
+    {
+        <p class="text-danger">@Model.ErrorMessage</p>
+    }
+
+    if (Model.HasResults)
     {
         await Html.RenderPartialAsync("ResturantsPartialView", Model.Restaurants);
-    }
-    else
-    {
-        if (Model.DisplayError)
-        {
-            <p class="text-danger">@Model.ErrorMessage</p>
-        }
+
+        <p>
+            <pager class="pager-container" list="@Model.Restaurants" options="@PagedListRenderOptions.Bootstrap4PageNumbersPlusPrevAndNext" asp-action="Index" asp-controller="Home" asp-route-query="@Model.PostCode" />
+
+        </p>
     }
 }
 
