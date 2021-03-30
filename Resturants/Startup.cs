@@ -1,17 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Restaurants.JustEat.Client;
 using Restaurants.Mappers;
 using Restaurants.Services;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Restaurants
 {
@@ -30,11 +24,13 @@ namespace Restaurants
             var cacheSettings = new CacheSettings();
             Configuration.GetSection(CacheSettings.CacheSettingsName).Bind(cacheSettings);
             services.AddSingleton<ICacheSettings>(cacheSettings);
+            var justEatApiClientSettings = new JustEatApiClientSettings();
+            Configuration.GetSection(JustEatApiClientSettings.JustEatApiClientSettingName).Bind(justEatApiClientSettings);
+            services.AddSingleton<IJustEatApiClientSettings>(justEatApiClientSettings);
 
             services.AddControllersWithViews();
-            services.AddTransient<IRestaurantsApiClient, RestaurantsApiClient>();
+            services.AddHttpClient<IRestaurantsApiClient, RestaurantsApiClient>();
             services.AddAutoMapper(typeof(RestaurantsMapper));
-            services.AddTransient<IRestClient, RestClient>();
             services.AddTransient<IRestaurantsService, RestaurantsService>();
         }
 

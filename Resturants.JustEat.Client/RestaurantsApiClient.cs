@@ -1,29 +1,37 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Restaurants.JustEat.Client.Models;
-using RestSharp;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Restaurants.JustEat.Client
 {
-    public class RestaurantsApiClient : IRestaurantsApiClient
+    public class RestaurantsApiClient : IRestaurantsApiClient, IDisposable
     {
-        private readonly IRestClient _restClient;
+        private readonly HttpClient _httpClient;
+        private readonly IJustEatApiClientSettings _justEatApiClientSettings;
+        private readonly ILogger<RestaurantsApiClient> _logger;
 
-        public RestaurantsApiClient(IRestClient restClient)
+        public RestaurantsApiClient(HttpClient httpClient, IJustEatApiClientSettings justEatApiClientSettings, ILogger<RestaurantsApiClient> logger)
         {
-            _restClient = restClient;
+            _httpClient = httpClient;
+            _httpClient.BaseAddress = new Uri(justEatApiClientSettings.BaseAddress);
+            _justEatApiClientSettings = justEatApiClientSettings;
+            _logger = logger;
+        }
+
+        public void Dispose()
+        {
+            this._httpClient?.Dispose();
         }
 
         public async Task<RestaurantsByPostCode> GetRestaurantsByPostCodeAsync(string postcode)
         {
             try
             {
-                //return await _restClient.GetAsync<RestaurantsByPostCode>(new RestRequest($"https://uk.api.just-eat.io/restaurants/bypostcode/{postcode}", Method.GET));
-                using var httpClient = new HttpClient();
-                var result = await httpClient.GetAsync($"https://uk.api.just-eat.io/restaurants/bypostcode/{postcode}");
+                var result = await _httpClient.GetAsync($"restaurants/bypostcode/{postcode}");
                 if (result.IsSuccessStatusCode)
                 {
                     string restaurantsByPostCodeJson = await result.Content.ReadAsStringAsync();
@@ -31,14 +39,19 @@ namespace Restaurants.JustEat.Client
                     {
                         Error = (object sender, ErrorEventArgs args) =>
                         {
+                            _logger.LogError("JustEatApiClientDeserializeError", args.ErrorContext.Error.Message);
                             args.ErrorContext.Handled = true;
                         },
                     });
                 }
+                else
+                {
+                    _logger.LogError("JustEatApiClientError", $"StatusCode:{result.StatusCode}", await result.Content.ReadAsStringAsync());
+                }
             }
             catch (Exception ex)
             {
-                //log
+                _logger.LogError("JustEatApiClientError", ex, "Error occured while getting resturants by postcode");
             }
             return default;
         }
