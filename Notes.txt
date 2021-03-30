@@ -1,0 +1,23 @@
+TODO : 
+- httpClient --
+- interfaces --
+- services -- 
+- caching --
+- paging --
+- logging ? 
+- metrics
+- heartbeat
+- unittests
+- integration Tests
+- ui automation tests
+- 
+
+
+API Improvements:
+- Restful 
+	- Single responsibility - different endpoints for metadata, offers, costs etc.
+- paging
+- validation of postcodes - not found for invalid postcodes
+	- API response Codes
+
+	
