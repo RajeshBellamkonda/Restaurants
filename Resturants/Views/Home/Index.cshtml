@@ -1,6 +1,5 @@
 ﻿@model Restaurants.ViewModels.RestaurantsSearchViewModel
 @using PagedList.Core.Mvc
-@using Restaurants.ViewModels
 
 @{
     ViewData["Title"] = "Resturants Search";
@@ -21,22 +20,26 @@
                 <input type="submit" value="Search" class="btn btn-primary" />
             </div>
         </form>
+        <div>
+            <button onclick="getLocation()" class="btn btn-primary">Use My Location</button>
+            <p id="location-error" class="text-danger"></p>
+        </div>
     </div>
 </div>
-@{
-    if (Model.DisplayError)
-    {
-        <p class="text-danger">@Model.ErrorMessage</p>
-    }
+<div class="row">
+    <div class="col-md-12">
+        @{ if (Model.DisplayError)
+            { <p class="text-danger">@Model.ErrorMessage</p>
+        }
 
-    if (Model.HasResults)
-    {
-        await Html.RenderPartialAsync("ResturantsPartialView", Model.Restaurants);
+        if (Model.HasResults)
+        {
+            await Html.RenderPartialAsync("ResturantsPartialView", Model.Restaurants);
 
-        <p>
-            <pager class="pager-container" list="@Model.Restaurants" options="@PagedListRenderOptions.Bootstrap4PageNumbersPlusPrevAndNext" asp-action="Index" asp-controller="Home" asp-route-query="@Model.PostCode" />
-
-        </p>
-    }
-}
-
+            <p>
+                <pager class="pager-container" list="@Model.Restaurants" options="@PagedListRenderOptions.Bootstrap4PageNumbersPlusPrevAndNext" asp-action="Index" asp-controller="Home" asp-route-postcode="@Model.PostCode" asp-route-latitude="@Model.Latitude" asp-route-longitude="@Model.Longitude" />
+            </p>
+        }
+        }
+    </div>
+</div>

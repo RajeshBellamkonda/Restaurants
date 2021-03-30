@@ -29,26 +29,21 @@ namespace Restaurants.Services
             _mapper = mapper;
         }
 
-        public async Task<IPagedList<RestaurantDto>> GetRestaurantsByPostCode(string postcode, int page, int pageSize)
+        public async Task<RestaurantSearchResultsDto> GetRestaurantsByPostCode(string postcode, int page, int pageSize)
         {
             {
                 try
                 {
-                    var cleanPostCode = CleanPostCode(postcode);
-                    _cache.TryGetValue(cleanPostCode, out RestaurantsByPostCode restaurantsByPostCode);
-                    if (restaurantsByPostCode == null)
+                    var cleanPostCode = CleanString(postcode);
+                    _cache.TryGetValue(cleanPostCode, out RestaurantsRoot restaurantsRoot);
+                    if (restaurantsRoot == null)
                     {
-                        restaurantsByPostCode = await _restaurantsApiClient.GetRestaurantsByPostCodeAsync(cleanPostCode);
-                        _cache.Set(cleanPostCode, restaurantsByPostCode, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByPostCodeAsync(cleanPostCode);
+                        _cache.Set(cleanPostCode, restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                     }
-                    if (restaurantsByPostCode != null)
+                    if (restaurantsRoot != null)
                     {
-    
-                        var resultRestaurants = restaurantsByPostCode.Restaurants
-                            .Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-                        return new StaticPagedList<RestaurantDto>(_mapper.Map<List<RestaurantDto>>(resultRestaurants),
-                            page, pageSize, restaurantsByPostCode.Restaurants.Count);
+                        return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsRoot);
                     }
                 }
                 catch (Exception ex)
@@ -59,9 +54,49 @@ namespace Restaurants.Services
             }
         }
 
-        private string CleanPostCode(string postcode)
+        public async Task<RestaurantSearchResultsDto> GetRestaurantsByGeoLocation(string latitude, string longitude, int page, int pageSize)
         {
-            return postcode.Trim().ToLower();
+            try
+            {
+                var cleanLatitude = CleanString(latitude);
+                var cleanLongitude = CleanString(longitude);
+                var cacheKey = $"{latitude}_{longitude}";
+                _cache.TryGetValue(cacheKey, out RestaurantsRoot restaurantsRoot);
+                if (restaurantsRoot == null)
+                {
+                    restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByLatLong(latitude, longitude);
+                    _cache.Set(cacheKey, restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                }
+                if (restaurantsRoot != null)
+                {
+                    return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsRoot);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("ServiceError", ex, "Error occured while getting resturants by geolocation");
+            }
+            return default;
+        }
+
+        private string CleanString(string stringToClean)
+        {
+            return stringToClean.Trim().ToLower();
+        }
+
+        private RestaurantSearchResultsDto BuildRestaurantSearchResultsDto(int page, int pageSize, RestaurantsRoot restaurantsByPostCode)
+        {
+            var resultRestaurants = restaurantsByPostCode.Restaurants
+                .Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return new RestaurantSearchResultsDto
+            {
+                Restaurants = new StaticPagedList<RestaurantDto>(_mapper.Map<List<RestaurantDto>>(resultRestaurants),
+                page, pageSize, restaurantsByPostCode.MetaData.ResultCount),
+                PostCode = restaurantsByPostCode.MetaData.Postcode,
+                Latitude = restaurantsByPostCode.MetaData.Latitude.ToString(),
+                Longitude = restaurantsByPostCode.MetaData.Longitude.ToString()
+            };
         }
     }
 }

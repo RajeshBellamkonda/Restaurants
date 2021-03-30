@@ -7,12 +7,10 @@ namespace Restaurants.JustEat.Client.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string UniqueName { get; set; }
-        public Address Address { get; set; }
         public string City { get; set; }
         public string Postcode { get; set; }
         public float Latitude { get; set; }
         public float Longitude { get; set; }
-        public Rating Rating { get; set; }
         public float RatingStars { get; set; }
         public int NumberOfRatings { get; set; }
         public float RatingAverage { get; set; }
@@ -39,7 +37,6 @@ namespace Restaurants.JustEat.Client.Models
         public object DeliveryTime { get; set; }
         public object DeliveryTimeMinutes { get; set; }
         public int? DeliveryWorkingTimeMinutes { get; set; }
-        public Deliveryetaminutes DeliveryEtaMinutes { get; set; }
         public bool IsCollection { get; set; }
         public bool IsDelivery { get; set; }
         public bool IsFreeDelivery { get; set; }
@@ -71,14 +68,9 @@ namespace Restaurants.JustEat.Client.Models
         public string BrandName { get; set; }
         public bool IsBrand { get; set; }
         public DateTime LastUpdated { get; set; }
-        public Deal[] Deals { get; set; }
-        public Offer[] Offers { get; set; }
-        public Logo[] Logo { get; set; }
         public string[] Tags { get; set; }
         public object[] DeliveryChargeBands { get; set; }
-        public Cuisinetype[] CuisineTypes { get; set; }
         public Cuisine[] Cuisines { get; set; }
-        public Scoremetadata[] ScoreMetaData { get; set; }
         public object[] Badges { get; set; }
         public object[] OpeningTimes { get; set; }
         public object[] ServiceableAreas { get; set; }

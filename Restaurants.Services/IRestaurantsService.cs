@@ -6,8 +6,8 @@ namespace Restaurants.Services
 {
     public interface IRestaurantsService
     {
+        Task<RestaurantSearchResultsDto> GetRestaurantsByGeoLocation(string latitude, string longitude, int page, int pageSize);
+        Task<RestaurantSearchResultsDto> GetRestaurantsByPostCode(string postcode, int page, int pageSize);
 
-        public Task<IPagedList<RestaurantDto>> GetRestaurantsByPostCode(string postcode, int page, int pageSize);
-        
     }
 }

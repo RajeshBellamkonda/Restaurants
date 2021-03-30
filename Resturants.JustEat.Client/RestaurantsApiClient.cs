@@ -27,7 +27,7 @@ namespace Restaurants.JustEat.Client
             this._httpClient?.Dispose();
         }
 
-        public async Task<RestaurantsByPostCode> GetRestaurantsByPostCodeAsync(string postcode)
+        public async Task<RestaurantsRoot> GetRestaurantsByPostCodeAsync(string postcode)
         {
             try
             {
@@ -35,7 +35,35 @@ namespace Restaurants.JustEat.Client
                 if (result.IsSuccessStatusCode)
                 {
                     string restaurantsByPostCodeJson = await result.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<RestaurantsByPostCode>(restaurantsByPostCodeJson, new JsonSerializerSettings
+                    return JsonConvert.DeserializeObject<RestaurantsRoot>(restaurantsByPostCodeJson, new JsonSerializerSettings
+                    {
+                        Error = (object sender, ErrorEventArgs args) =>
+                        {
+                            _logger.LogError("JustEatApiClientDeserializeError", args.ErrorContext.Error.Message);
+                            args.ErrorContext.Handled = true;
+                        },
+                    });
+                }
+                else
+                {
+                    _logger.LogError("JustEatApiClientError", $"StatusCode:{result.StatusCode}", await result.Content.ReadAsStringAsync());
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("JustEatApiClientError", ex, "Error occured while getting resturants by postcode");
+            }
+            return default;
+        }
+        public async Task<RestaurantsRoot> GetRestaurantsByLatLong(string latitude, string longitude)
+        {
+            try
+            {
+                var result = await _httpClient.GetAsync($"restaurants/bylatlong?latitude={latitude}&longitude={longitude}");
+                if (result.IsSuccessStatusCode)
+                {
+                    string restaurantsByLatLong = await result.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<RestaurantsRoot>(restaurantsByLatLong, new JsonSerializerSettings
                     {
                         Error = (object sender, ErrorEventArgs args) =>
                         {

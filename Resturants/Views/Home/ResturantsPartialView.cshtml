@@ -1,52 +1,52 @@
 ﻿@model IEnumerable<Restaurants.ViewModels.RestaurantViewModel>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    Logo
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Name)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.RatingStars)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.NumberOfRatings)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.RatingAverage)
-                </th>
-                <th>Cuisines</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Logo
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RatingStars)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumberOfRatings)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RatingAverage)
+            </th>
+            <th>Cuisines</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
             {
-                <tr>
-                    <td>
-                        <img src="@Url.Content(item.LogoUrl)" alt="@(item.Name)" />
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RatingStars)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.NumberOfRatings)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RatingAverage)
-                    </td>
-                    <td>
-                        @foreach (var cuisine in item.Cuisines)
+        <tr>
+            <td>
+                <img src="@Url.Content(item.LogoUrl)" alt="@(item.Name)" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RatingStars)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumberOfRatings)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RatingAverage)
+            </td>
+            <td>
+                @foreach (var cuisine in item.Cuisines)
                         {
-                            <span for="Name" class="cuisine-tag">@cuisine.Name</span>
+                <span for="Name" class="cuisine-tag">@cuisine.Name</span>
                         }
-                    </td>
-                </tr>
+            </td>
+        </tr>
             }
-        </tbody>
-    </table>
+    </tbody>
+</table>
