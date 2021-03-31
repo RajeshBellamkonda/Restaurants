@@ -31,26 +31,29 @@ namespace Restaurants.Services
 
         public async Task<RestaurantSearchResultsDto> GetRestaurantsByPostCode(string postcode, int page, int pageSize)
         {
+            try
             {
-                try
+                var cleanPostCode = CleanString(postcode);
+                _cache.TryGetValue(cleanPostCode, out RestaurantsRoot restaurantsRoot);
+                if (restaurantsRoot == null)
                 {
-                    var cleanPostCode = CleanString(postcode);
-                    _cache.TryGetValue(cleanPostCode, out RestaurantsRoot restaurantsRoot);
-                    if (restaurantsRoot == null)
+                    restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByPostCode(cleanPostCode);
+                    if (restaurantsRoot.Restaurants.Any())
                     {
-                        restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByPostCode(cleanPostCode);
                         _cache.Set(cleanPostCode, restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                     }
-                    if (restaurantsRoot != null)
+                    else
                     {
-                        return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsRoot);
+                        return new RestaurantSearchResultsDto { ErrorMessage = $"No resturants found for postcode :{postcode}" };
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError("ServiceError", ex, "Error occured while getting resturants by postcode");
-                }
-                return default;
+                return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsRoot);
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = $"Error occured while getting resturants by postcode: {postcode}";
+                _logger.LogError("ServiceError", ex, errorMessage);
+                return new RestaurantSearchResultsDto { ErrorMessage = errorMessage };
             }
         }
 
@@ -65,20 +68,25 @@ namespace Restaurants.Services
                 if (restaurantsRoot == null)
                 {
                     restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByLatLong(latitude, longitude);
-                    _cache.Set(cacheKey, restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
-                    // Adding the postcode to cache so that we get the same results for the postcode search too.
-                    _cache.Set(CleanString(restaurantsRoot.MetaData.Postcode), restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                    if (restaurantsRoot.Restaurants.Any())
+                    {
+                        _cache.Set(cacheKey, restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        // Adding the postcode to cache so that we get the same results for the postcode search too.
+                        _cache.Set(CleanString(restaurantsRoot.MetaData.Postcode), restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                    }
+                    else
+                    {
+                        return new RestaurantSearchResultsDto { ErrorMessage = "No resturants found for this geolocation" };
+                    }
                 }
-                if (restaurantsRoot != null)
-                {
-                    return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsRoot);
-                }
+                return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsRoot);
             }
             catch (Exception ex)
             {
-                _logger.LogError("ServiceError", ex, "Error occured while getting resturants by geolocation");
+                var errorMessage = $"Error occured while getting resturants by geolocation";
+                _logger.LogError("ServiceError", ex, errorMessage);
+                return new RestaurantSearchResultsDto { ErrorMessage = errorMessage };
             }
-            return default;
         }
 
         private string CleanString(string stringToClean)

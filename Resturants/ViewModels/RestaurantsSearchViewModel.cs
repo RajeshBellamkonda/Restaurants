@@ -21,8 +21,8 @@ namespace Restaurants.ViewModels
 
         public IPagedList<RestaurantViewModel> Restaurants { get; set; }
 
-        public string ErrorMessage => DisplayError ? $"No results found for postcode {PostCode}" : "";
-        public bool DisplayError => !string.IsNullOrEmpty(PostCode) && !HasResults;
+        public string ErrorMessage { get; set; }
+        public bool DisplayError => !string.IsNullOrEmpty(ErrorMessage) && !HasResults;
         public bool HasResults => Restaurants != null && Restaurants.Any();
         public int PageSize { get; set; } = 10;
 

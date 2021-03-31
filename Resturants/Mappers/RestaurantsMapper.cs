@@ -16,10 +16,13 @@ namespace Restaurants.Mappers
             // DTOs to ViewModels
             CreateMap<RestaurantDto, RestaurantViewModel>();
             CreateMap<CuisineDto, CuisineViewModel>();
+            CreateMap<RestaurantSearchResultsDto, RestaurantsSearchViewModel>()
+                .ForMember(x => x.Restaurants, opt => opt.Ignore());
 
             // Models to ViewModels
             CreateMap<Restaurant, RestaurantDto>();
             CreateMap<Cuisine, CuisineDto>();
+
         }
     }
 }

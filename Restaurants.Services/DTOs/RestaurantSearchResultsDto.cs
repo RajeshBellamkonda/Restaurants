@@ -8,11 +8,13 @@ namespace Restaurants.Services.DTOs
     public class RestaurantSearchResultsDto
     {
         public IPagedList<RestaurantDto> Restaurants { get; set; }
-        
+
         public string PostCode { get; set; }
 
         public string Latitude { get; set; }
 
         public string Longitude { get; set; }
+
+        public string ErrorMessage { get; set; }
     }
 }

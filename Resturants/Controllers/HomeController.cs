@@ -35,13 +35,13 @@ namespace Restaurants.Controllers
                 if (!string.IsNullOrEmpty(restaurantSearchVm.PostCodeFromQuery))
                 {
                     var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCodeFromQuery, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-                    BuildViewModel(restaurantSearchVm, restaurantSearchResultsDto);
+                    restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
                     return View(restaurantSearchVm);
                 }
                 else if (!string.IsNullOrEmpty(restaurantSearchVm.Latitude) && !string.IsNullOrEmpty(restaurantSearchVm.Longitude))
                 {
                     var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByGeoLocation(restaurantSearchVm.Latitude, restaurantSearchVm.Longitude, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-                    BuildViewModel(restaurantSearchVm, restaurantSearchResultsDto);
+                    restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
                     return View(restaurantSearchVm);
                 }
             }
@@ -50,7 +50,7 @@ namespace Restaurants.Controllers
                 if (ModelState.IsValid)
                 {
                     var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-                    BuildViewModel(restaurantSearchVm, restaurantSearchResultsDto);
+                    restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
                     return View(restaurantSearchVm);
                 }
                 return View(restaurantSearchVm);
@@ -58,21 +58,18 @@ namespace Restaurants.Controllers
             return View(new RestaurantsSearchViewModel());
         }
 
-        private RestaurantsSearchViewModel BuildViewModel(RestaurantsSearchViewModel restaurantsSearchViewModel, RestaurantSearchResultsDto restaurantSearchResultsDto)
+        private RestaurantsSearchViewModel BuildViewModel(RestaurantSearchResultsDto restaurantSearchResultsDto)
         {
-            restaurantsSearchViewModel.Restaurants = MapPagedRestaurantDto(restaurantSearchResultsDto.Restaurants, restaurantsSearchViewModel.Page, restaurantsSearchViewModel.PageSize);
-            if (string.IsNullOrEmpty(restaurantsSearchViewModel.PostCode))
-            {
-                restaurantsSearchViewModel.PostCode = restaurantSearchResultsDto.PostCode;
-            }
+            var restaurantsSearchViewModel = _mapper.Map<RestaurantsSearchViewModel>(restaurantSearchResultsDto);
+            restaurantsSearchViewModel.Restaurants = MapPagedRestaurantDto(restaurantSearchResultsDto?.Restaurants, restaurantsSearchViewModel.Page, restaurantsSearchViewModel.PageSize);
             return restaurantsSearchViewModel;
         }
 
 
         private IPagedList<RestaurantViewModel> MapPagedRestaurantDto(IPagedList<RestaurantDto> pagedRestaurant, int pageNumber, int pageSize)
         {
+            if (pagedRestaurant == null) return default;
             var mappedResults = _mapper.Map<IEnumerable<RestaurantViewModel>>(pagedRestaurant);
-
             return new StaticPagedList<RestaurantViewModel>(mappedResults, pagedRestaurant.GetMetaData());
         }
 
