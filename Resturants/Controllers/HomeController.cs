@@ -27,51 +27,36 @@ namespace Restaurants.Controllers
             _restaurantsService = restaurantsService;
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Index(RestaurantsQueryViewModel restaurantSearchVm)
-        //{
-        //    if (!string.IsNullOrEmpty(postCode))
-        //    {
-        //        var restaurantDtos = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-        //        BuildViewModel(restaurantSearchVm, restaurantDtos);
-        //        return View(restaurantSearchVm);
-        //    }
-        //    else if (!string.IsNullOrEmpty(restaurantSearchVm.Latitude) && !string.IsNullOrEmpty(restaurantSearchVm.Longitude))
-        //    {
-        //        var restaurantDtos = await _restaurantsService.GetRestaurantsByGeoLocation(restaurantSearchVm.Latitude, restaurantSearchVm.Longitude, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-        //        BuildViewModel(restaurantSearchVm, restaurantDtos);
-        //        return View(restaurantSearchVm);
-        //    }
-        //}
+        [HttpGet]
         public async Task<IActionResult> Index(RestaurantsSearchViewModel restaurantSearchVm)
         {
-            if (Request.Method == "GET")
+            ModelState.Clear();
+            if (!string.IsNullOrEmpty(restaurantSearchVm.PostCodeFromQuery))
             {
-                ModelState.Clear();
-                if (!string.IsNullOrEmpty(restaurantSearchVm.PostCodeFromQuery))
-                {
-                    var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCodeFromQuery, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-                    BuildViewModel(restaurantSearchVm, restaurantSearchResultsDto);
-                    return View(restaurantSearchVm);
-                }
-                else if (!string.IsNullOrEmpty(restaurantSearchVm.Latitude) && !string.IsNullOrEmpty(restaurantSearchVm.Longitude))
-                {
-                    var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByGeoLocation(restaurantSearchVm.Latitude, restaurantSearchVm.Longitude, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-                    BuildViewModel(restaurantSearchVm, restaurantSearchResultsDto);
-                    return View(restaurantSearchVm);
-                }
-            }
-            else
-            {
-                if (ModelState.IsValid)
-                {
-                    var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-                    BuildViewModel(restaurantSearchVm, restaurantSearchResultsDto);
-                    return View(restaurantSearchVm);
-                }
+                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCodeFromQuery, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
+                BuildViewModel(restaurantSearchVm, restaurantSearchResultsDto);
                 return View(restaurantSearchVm);
             }
-            return View(new RestaurantsSearchViewModel());
+            else if (!string.IsNullOrEmpty(restaurantSearchVm.Latitude) && !string.IsNullOrEmpty(restaurantSearchVm.Longitude))
+            {
+                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByGeoLocation(restaurantSearchVm.Latitude, restaurantSearchVm.Longitude, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
+                BuildViewModel(restaurantSearchVm, restaurantSearchResultsDto);
+                return View(restaurantSearchVm);
+            }
+            return View(restaurantSearchVm);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Post(RestaurantsSearchViewModel restaurantSearchVm)
+        {
+            if (ModelState.IsValid)
+            {
+                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
+                BuildViewModel(restaurantSearchVm, restaurantSearchResultsDto);
+                return View("Index", restaurantSearchVm);
+            }
+            return View("Index", restaurantSearchVm);
         }
 
         private RestaurantsSearchViewModel BuildViewModel(RestaurantsSearchViewModel restaurantsSearchViewModel, RestaurantSearchResultsDto restaurantSearchResultsDto)
