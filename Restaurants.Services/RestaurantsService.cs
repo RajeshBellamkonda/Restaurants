@@ -38,7 +38,7 @@ namespace Restaurants.Services
                     _cache.TryGetValue(cleanPostCode, out RestaurantsRoot restaurantsRoot);
                     if (restaurantsRoot == null)
                     {
-                        restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByPostCodeAsync(cleanPostCode);
+                        restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByPostCode(cleanPostCode);
                         _cache.Set(cleanPostCode, restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                     }
                     if (restaurantsRoot != null)
@@ -66,6 +66,8 @@ namespace Restaurants.Services
                 {
                     restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByLatLong(latitude, longitude);
                     _cache.Set(cacheKey, restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                    // Adding the postcode to cache so that we get the same results for the postcode search too.
+                    _cache.Set(CleanString(restaurantsRoot.MetaData.Postcode), restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                 }
                 if (restaurantsRoot != null)
                 {

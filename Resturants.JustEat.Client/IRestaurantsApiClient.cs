@@ -6,6 +6,6 @@ namespace Restaurants.JustEat.Client
     public interface IRestaurantsApiClient
     {
         Task<RestaurantsRoot> GetRestaurantsByLatLong(string latitude, string longitude);
-        Task<RestaurantsRoot> GetRestaurantsByPostCodeAsync(string postcode);
+        Task<RestaurantsRoot> GetRestaurantsByPostCode(string postcode);
     }
 }
