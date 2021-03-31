@@ -27,22 +27,6 @@ namespace Restaurants.Controllers
             _restaurantsService = restaurantsService;
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Index(RestaurantsQueryViewModel restaurantSearchVm)
-        //{
-        //    if (!string.IsNullOrEmpty(postCode))
-        //    {
-        //        var restaurantDtos = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-        //        BuildViewModel(restaurantSearchVm, restaurantDtos);
-        //        return View(restaurantSearchVm);
-        //    }
-        //    else if (!string.IsNullOrEmpty(restaurantSearchVm.Latitude) && !string.IsNullOrEmpty(restaurantSearchVm.Longitude))
-        //    {
-        //        var restaurantDtos = await _restaurantsService.GetRestaurantsByGeoLocation(restaurantSearchVm.Latitude, restaurantSearchVm.Longitude, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-        //        BuildViewModel(restaurantSearchVm, restaurantDtos);
-        //        return View(restaurantSearchVm);
-        //    }
-        //}
         public async Task<IActionResult> Index(RestaurantsSearchViewModel restaurantSearchVm)
         {
             if (Request.Method == "GET")
