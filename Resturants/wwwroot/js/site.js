@@ -13,8 +13,8 @@ function getLocation() {
 }
 
 function showPosition(position) {
-    var searchParams = "?latitude=" + position.coords.latitude + "&longitude=" + position.coords.longitude;
-    document.location.replace(document.location.origin + searchParams);
+    var searchParams = "latitude=" + position.coords.latitude + "&longitude=" + position.coords.longitude;
+    document.location.search = searchParams;
 }
 
 function showError(error) {
