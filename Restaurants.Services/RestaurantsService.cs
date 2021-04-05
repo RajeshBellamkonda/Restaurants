@@ -14,6 +14,8 @@ namespace Restaurants.Services
 {
     public class RestaurantsService : IRestaurantsService
     {
+        private const string ServiceError = "ServiceError";
+        private const string GeoLocationErrorMessage = "Error occured while getting resturants by geolocation";
         private readonly ILogger<RestaurantsService> _logger;
         private readonly IRestaurantsApiClient _restaurantsApiClient;
         private readonly IMemoryCache _cache;
@@ -31,6 +33,7 @@ namespace Restaurants.Services
 
         public async Task<RestaurantSearchResultsDto> GetRestaurantsByPostCode(string postcode, int page, int pageSize)
         {
+            var restaurantSearchResultsDto = new RestaurantSearchResultsDto();
             try
             {
                 var cleanPostCode = CleanString(postcode);
@@ -44,21 +47,23 @@ namespace Restaurants.Services
                     }
                     else
                     {
-                        return new RestaurantSearchResultsDto { ErrorMessage = $"No resturants found for postcode :{postcode}" };
+                        restaurantSearchResultsDto.ErrorMessage = $"No resturants found for postcode: {postcode}";
                     }
                 }
-                return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults);
+                restaurantSearchResultsDto = BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults, restaurantSearchResultsDto);
             }
             catch (Exception ex)
             {
                 var errorMessage = $"Error occured while getting resturants by postcode: {postcode}";
-                _logger.LogError("ServiceError", ex, errorMessage);
-                return new RestaurantSearchResultsDto { ErrorMessage = errorMessage };
+                _logger.LogError(ServiceError, ex, errorMessage);
+                restaurantSearchResultsDto.ErrorMessage = errorMessage;
             }
+            return restaurantSearchResultsDto;
         }
 
         public async Task<RestaurantSearchResultsDto> GetRestaurantsByGeoLocation(string latitude, string longitude, int page, int pageSize)
         {
+            var restaurantSearchResultsDto = new RestaurantSearchResultsDto();
             try
             {
                 var cleanLatitude = CleanString(latitude);
@@ -76,17 +81,17 @@ namespace Restaurants.Services
                     }
                     else
                     {
-                        return new RestaurantSearchResultsDto { ErrorMessage = "No resturants found for this geolocation" };
+                        restaurantSearchResultsDto.ErrorMessage = "No resturants found for this geolocation";
                     }
                 }
-                return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults);
+                restaurantSearchResultsDto = BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults, restaurantSearchResultsDto);
             }
             catch (Exception ex)
             {
-                var errorMessage = $"Error occured while getting resturants by geolocation";
-                _logger.LogError("ServiceError", ex, errorMessage);
-                return new RestaurantSearchResultsDto { ErrorMessage = errorMessage };
+                _logger.LogError(ServiceError, ex, GeoLocationErrorMessage);
+                restaurantSearchResultsDto.ErrorMessage = GeoLocationErrorMessage;
             }
+            return restaurantSearchResultsDto;
         }
 
         private string CleanString(string stringToClean)
@@ -94,19 +99,21 @@ namespace Restaurants.Services
             return stringToClean.Trim().ToLower();
         }
 
-        private RestaurantSearchResultsDto BuildRestaurantSearchResultsDto(int page, int pageSize, RestaurantsSearchResults restaurantsSearchResults)
+        private RestaurantSearchResultsDto BuildRestaurantSearchResultsDto(int page, int pageSize, RestaurantsSearchResults restaurantsSearchResults, RestaurantSearchResultsDto restaurantSearchResultsDto)
         {
-            var resultRestaurants = restaurantsSearchResults.Restaurants
-                .Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            return new RestaurantSearchResultsDto
+            var restaurants = restaurantsSearchResults?.Restaurants;
+            if (restaurants != null && restaurants.Any())
             {
-                Restaurants = new StaticPagedList<RestaurantDto>(_mapper.Map<List<RestaurantDto>>(resultRestaurants),
-                page, pageSize, restaurantsSearchResults.MetaData.ResultCount),
-                PostCode = restaurantsSearchResults.MetaData.Postcode,
-                Latitude = restaurantsSearchResults.MetaData.Latitude.ToString(),
-                Longitude = restaurantsSearchResults.MetaData.Longitude.ToString()
-            };
+                var resultRestaurants = restaurantsSearchResults.Restaurants
+                    .Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                restaurantSearchResultsDto.Restaurants = new StaticPagedList<RestaurantDto>(_mapper.Map<List<RestaurantDto>>(resultRestaurants),
+                page, pageSize, restaurantsSearchResults.MetaData.ResultCount);
+                restaurantSearchResultsDto.PostCode = restaurantsSearchResults.MetaData.Postcode;
+                restaurantSearchResultsDto.Latitude = restaurantsSearchResults.MetaData.Latitude.ToString();
+                restaurantSearchResultsDto.Longitude = restaurantsSearchResults.MetaData.Longitude.ToString();
+            }
+            return restaurantSearchResultsDto;
         }
     }
 }
