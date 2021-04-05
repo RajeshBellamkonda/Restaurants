@@ -1,15 +1,18 @@
 TODO : 
+- unittests
+- integration Tests
+- ui automation tests
+- json models --
+- DisplayForNames --
+- Stars for Ratings if possible
 - httpClient --
 - interfaces --
 - services -- 
 - caching --
 - paging --
-- logging ? 
+- logging -- 
 - metrics
 - heartbeat
-- unittests
-- integration Tests
-- ui automation tests
 - 
 
 

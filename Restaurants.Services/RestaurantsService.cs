@@ -34,20 +34,20 @@ namespace Restaurants.Services
             try
             {
                 var cleanPostCode = CleanString(postcode);
-                _cache.TryGetValue(cleanPostCode, out RestaurantsRoot restaurantsRoot);
-                if (restaurantsRoot == null)
+                _cache.TryGetValue(cleanPostCode, out RestaurantsSearchResults restaurantsSearchResults);
+                if (restaurantsSearchResults == null)
                 {
-                    restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByPostCode(cleanPostCode);
-                    if (restaurantsRoot.Restaurants.Any())
+                    restaurantsSearchResults = await _restaurantsApiClient.GetRestaurantsByPostCode(cleanPostCode);
+                    if (restaurantsSearchResults.Restaurants.Any())
                     {
-                        _cache.Set(cleanPostCode, restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        _cache.Set(cleanPostCode, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                     }
                     else
                     {
                         return new RestaurantSearchResultsDto { ErrorMessage = $"No resturants found for postcode :{postcode}" };
                     }
                 }
-                return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsRoot);
+                return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults);
             }
             catch (Exception ex)
             {
@@ -64,22 +64,22 @@ namespace Restaurants.Services
                 var cleanLatitude = CleanString(latitude);
                 var cleanLongitude = CleanString(longitude);
                 var cacheKey = $"{latitude}_{longitude}";
-                _cache.TryGetValue(cacheKey, out RestaurantsRoot restaurantsRoot);
-                if (restaurantsRoot == null)
+                _cache.TryGetValue(cacheKey, out RestaurantsSearchResults restaurantsSearchResults);
+                if (restaurantsSearchResults == null)
                 {
-                    restaurantsRoot = await _restaurantsApiClient.GetRestaurantsByLatLong(latitude, longitude);
-                    if (restaurantsRoot.Restaurants.Any())
+                    restaurantsSearchResults = await _restaurantsApiClient.GetRestaurantsByLatLong(latitude, longitude);
+                    if (restaurantsSearchResults.Restaurants.Any())
                     {
-                        _cache.Set(cacheKey, restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        _cache.Set(cacheKey, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                         // Adding the postcode to cache so that we get the same results for the postcode search too.
-                        _cache.Set(CleanString(restaurantsRoot.MetaData.Postcode), restaurantsRoot, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        _cache.Set(CleanString(restaurantsSearchResults.MetaData.Postcode), restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                     }
                     else
                     {
                         return new RestaurantSearchResultsDto { ErrorMessage = "No resturants found for this geolocation" };
                     }
                 }
-                return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsRoot);
+                return BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults);
             }
             catch (Exception ex)
             {
@@ -94,18 +94,18 @@ namespace Restaurants.Services
             return stringToClean.Trim().ToLower();
         }
 
-        private RestaurantSearchResultsDto BuildRestaurantSearchResultsDto(int page, int pageSize, RestaurantsRoot restaurantsByPostCode)
+        private RestaurantSearchResultsDto BuildRestaurantSearchResultsDto(int page, int pageSize, RestaurantsSearchResults restaurantsSearchResults)
         {
-            var resultRestaurants = restaurantsByPostCode.Restaurants
+            var resultRestaurants = restaurantsSearchResults.Restaurants
                 .Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
             return new RestaurantSearchResultsDto
             {
                 Restaurants = new StaticPagedList<RestaurantDto>(_mapper.Map<List<RestaurantDto>>(resultRestaurants),
-                page, pageSize, restaurantsByPostCode.MetaData.ResultCount),
-                PostCode = restaurantsByPostCode.MetaData.Postcode,
-                Latitude = restaurantsByPostCode.MetaData.Latitude.ToString(),
-                Longitude = restaurantsByPostCode.MetaData.Longitude.ToString()
+                page, pageSize, restaurantsSearchResults.MetaData.ResultCount),
+                PostCode = restaurantsSearchResults.MetaData.Postcode,
+                Latitude = restaurantsSearchResults.MetaData.Latitude.ToString(),
+                Longitude = restaurantsSearchResults.MetaData.Longitude.ToString()
             };
         }
     }
