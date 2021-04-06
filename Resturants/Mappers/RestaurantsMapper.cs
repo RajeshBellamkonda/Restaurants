@@ -17,7 +17,8 @@ namespace Restaurants.Mappers
             CreateMap<RestaurantDto, RestaurantViewModel>();
             CreateMap<CuisineDto, CuisineViewModel>();
             CreateMap<RestaurantSearchResultsDto, RestaurantsSearchViewModel>()
-                .ForMember(x => x.Restaurants, opt => opt.Ignore());
+                .ForMember(x => x.Restaurants, opt => opt.AllowNull())
+                .ForMember(x => x.Restaurants, opt => opt.MapFrom<PagedRestaurantViewModel>());
 
             // Models to ViewModels
             CreateMap<Restaurant, RestaurantDto>();

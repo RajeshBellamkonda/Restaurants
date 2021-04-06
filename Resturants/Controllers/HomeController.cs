@@ -61,17 +61,9 @@ namespace Restaurants.Controllers
         private RestaurantsSearchViewModel BuildViewModel(RestaurantSearchResultsDto restaurantSearchResultsDto)
         {
             var restaurantsSearchViewModel = _mapper.Map<RestaurantsSearchViewModel>(restaurantSearchResultsDto);
-            restaurantsSearchViewModel.Restaurants = MapPagedRestaurantDto(restaurantSearchResultsDto?.Restaurants, restaurantsSearchViewModel.Page, restaurantsSearchViewModel.PageSize);
             return restaurantsSearchViewModel;
         }
 
-
-        private IPagedList<RestaurantViewModel> MapPagedRestaurantDto(IPagedList<RestaurantDto> pagedRestaurant, int pageNumber, int pageSize)
-        {
-            if (pagedRestaurant == null) return default;
-            var mappedResults = _mapper.Map<IEnumerable<RestaurantViewModel>>(pagedRestaurant);
-            return new StaticPagedList<RestaurantViewModel>(mappedResults, pagedRestaurant.GetMetaData());
-        }
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

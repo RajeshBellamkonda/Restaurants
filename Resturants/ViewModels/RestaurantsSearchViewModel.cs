@@ -19,7 +19,7 @@ namespace Restaurants.ViewModels
         [FromQuery(Name = "longitude")]
         public string Longitude { get; set; }
 
-        public IPagedList<RestaurantViewModel> Restaurants { get; set; }
+        public StaticPagedList<RestaurantViewModel> Restaurants { get; set; }
 
         public string ErrorMessage { get; set; }
         public bool DisplayError => !string.IsNullOrEmpty(ErrorMessage) && !HasResults;

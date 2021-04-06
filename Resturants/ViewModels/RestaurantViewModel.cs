@@ -6,7 +6,6 @@ namespace Restaurants.ViewModels
     {
         public int Id { get; set; }
 
-        [Display(Name = "PostCode")]
         public string LogoUrl { get; set; }
         public string Name { get; set; }
 

@@ -41,7 +41,7 @@ namespace Restaurants.Services
                 if (restaurantsSearchResults == null)
                 {
                     restaurantsSearchResults = await _restaurantsApiClient.GetRestaurantsByPostCode(cleanPostCode);
-                    if (restaurantsSearchResults.Restaurants.Any())
+                    if (restaurantsSearchResults?.Restaurants != null && restaurantsSearchResults.Restaurants.Any())
                     {
                         _cache.Set(cleanPostCode, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                     }
@@ -68,12 +68,12 @@ namespace Restaurants.Services
             {
                 var cleanLatitude = CleanString(latitude);
                 var cleanLongitude = CleanString(longitude);
-                var cacheKey = $"{latitude}_{longitude}";
+                var cacheKey = $"{cleanLatitude}_{cleanLongitude}";
                 _cache.TryGetValue(cacheKey, out RestaurantsSearchResults restaurantsSearchResults);
                 if (restaurantsSearchResults == null)
                 {
-                    restaurantsSearchResults = await _restaurantsApiClient.GetRestaurantsByLatLong(latitude, longitude);
-                    if (restaurantsSearchResults.Restaurants.Any())
+                    restaurantsSearchResults = await _restaurantsApiClient.GetRestaurantsByLatLong(cleanLatitude, cleanLongitude);
+                    if (restaurantsSearchResults?.Restaurants != null && restaurantsSearchResults.Restaurants.Any())
                     {
                         _cache.Set(cacheKey, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                         // Adding the postcode to cache so that we get the same results for the postcode search too.
@@ -94,10 +94,7 @@ namespace Restaurants.Services
             return restaurantSearchResultsDto;
         }
 
-        private string CleanString(string stringToClean)
-        {
-            return stringToClean.Trim().ToLower();
-        }
+        private string CleanString(string stringToClean) => stringToClean.Trim().ToLower();
 
         private RestaurantSearchResultsDto BuildRestaurantSearchResultsDto(int page, int pageSize, RestaurantsSearchResults restaurantsSearchResults, RestaurantSearchResultsDto restaurantSearchResultsDto)
         {
