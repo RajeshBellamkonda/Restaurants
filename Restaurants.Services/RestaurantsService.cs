@@ -104,8 +104,10 @@ namespace Restaurants.Services
                 var resultRestaurants = restaurantsSearchResults.Restaurants
                     .Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-                restaurantSearchResultsDto.Restaurants = new StaticPagedList<RestaurantDto>(_mapper.Map<List<RestaurantDto>>(resultRestaurants),
-                page, pageSize, restaurantsSearchResults.MetaData.ResultCount);
+                restaurantSearchResultsDto.Restaurants = new StaticPagedList<RestaurantDto>(
+                    _mapper.Map<List<RestaurantDto>>(resultRestaurants),
+                    page, pageSize, restaurantsSearchResults.MetaData.ResultCount);
+
                 restaurantSearchResultsDto.PostCode = restaurantsSearchResults.MetaData.Postcode;
                 restaurantSearchResultsDto.Latitude = restaurantsSearchResults.MetaData.Latitude.ToString();
                 restaurantSearchResultsDto.Longitude = restaurantsSearchResults.MetaData.Longitude.ToString();

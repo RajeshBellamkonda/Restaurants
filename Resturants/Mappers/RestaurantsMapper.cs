@@ -23,7 +23,6 @@ namespace Restaurants.Mappers
             // Models to ViewModels
             CreateMap<Restaurant, RestaurantDto>();
             CreateMap<Cuisine, CuisineDto>();
-
         }
     }
 }
