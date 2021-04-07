@@ -15,18 +15,21 @@ namespace Restaurants.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IRestaurantsApiClient _restaurantsApiClient;
         private readonly IMapper _mapper;
         private readonly IRestaurantsService _restaurantsService;
 
-        public HomeController(ILogger<HomeController> logger, IRestaurantsApiClient restaurantsApiClient, IMapper mapper, IRestaurantsService restaurantsService)
+        public HomeController(ILogger<HomeController> logger, IMapper mapper, IRestaurantsService restaurantsService)
         {
             _logger = logger;
-            _restaurantsApiClient = restaurantsApiClient;
             _mapper = mapper;
             _restaurantsService = restaurantsService;
         }
 
+        /// <summary>
+        /// Displays Restaurant search results based on PostCode and GeoLocation
+        /// </summary>
+        /// <param name="restaurantSearchVm">Restaurant Search View Model with search parameters</param>
+        /// <returns>View for Restaurants Search Results</returns>
         public async Task<IActionResult> Index(RestaurantsSearchViewModel restaurantSearchVm)
         {
             if (Request.Method == "GET")
