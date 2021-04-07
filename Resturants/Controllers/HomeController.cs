@@ -26,39 +26,46 @@ namespace Restaurants.Controllers
         }
 
         /// <summary>
+        /// Displays restaurants search view
+        /// </summary>
+        /// <param name="postcode">postcode to search</param>
+        /// <param name="latitude">latitude from geolocation to search</param>
+        /// <param name="longitude">longitude from geolocation to search</param>
+        /// <param name="page">The page search results to retrieve</param>
+        /// <returns>View for the Restaurants Search</returns>
+        [HttpGet]
+        public async Task<IActionResult> Index(string postcode, string latitude, string longitude, int page = 1)
+        {
+            if (!string.IsNullOrEmpty(postcode))
+            {
+                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(postcode, page, RestaurantsSearchViewModel.DefaultPageSize);
+                var restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
+                return View(restaurantSearchVm);
+            }
+            else if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
+            {
+                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByGeoLocation(latitude, longitude, page, RestaurantsSearchViewModel.DefaultPageSize);
+                var restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
+                return View(restaurantSearchVm);
+            }
+            return View(new RestaurantsSearchViewModel());
+        }
+
+        /// <summary>
         /// Displays Restaurant search results based on PostCode and GeoLocation
         /// </summary>
         /// <param name="restaurantSearchVm">Restaurant Search View Model with search parameters</param>
         /// <returns>View for Restaurants Search Results</returns>
+        [HttpPost]
         public async Task<IActionResult> Index(RestaurantsSearchViewModel restaurantSearchVm)
         {
-            if (Request.Method == "GET")
+            if (ModelState.IsValid)
             {
-                ModelState.Clear();
-                if (!string.IsNullOrEmpty(restaurantSearchVm.PostCodeFromQuery))
-                {
-                    var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCodeFromQuery, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-                    restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
-                    return View(restaurantSearchVm);
-                }
-                else if (!string.IsNullOrEmpty(restaurantSearchVm.Latitude) && !string.IsNullOrEmpty(restaurantSearchVm.Longitude))
-                {
-                    var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByGeoLocation(restaurantSearchVm.Latitude, restaurantSearchVm.Longitude, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-                    restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
-                    return View(restaurantSearchVm);
-                }
-            }
-            else
-            {
-                if (ModelState.IsValid)
-                {
-                    var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
-                    restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
-                    return View(restaurantSearchVm);
-                }
+                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
+                restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
                 return View(restaurantSearchVm);
             }
-            return View(new RestaurantsSearchViewModel());
+            return View(restaurantSearchVm);
         }
 
         private RestaurantsSearchViewModel BuildViewModel(RestaurantSearchResultsDto restaurantSearchResultsDto)
@@ -66,7 +73,6 @@ namespace Restaurants.Controllers
             var restaurantsSearchViewModel = _mapper.Map<RestaurantsSearchViewModel>(restaurantSearchResultsDto);
             return restaurantsSearchViewModel;
         }
-
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
