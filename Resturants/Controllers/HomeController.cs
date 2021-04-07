@@ -34,7 +34,7 @@ namespace Restaurants.Controllers
         /// <param name="page">The page search results to retrieve</param>
         /// <returns>View for the Restaurants Search</returns>
         [HttpGet]
-        public async Task<IActionResult> Index(string postcode, string latitude, string longitude, int page = 1)
+        public async Task<IActionResult> Index(string postcode = null, string latitude = null, string longitude = null, int page = 1)
         {
             if (!string.IsNullOrEmpty(postcode))
             {
