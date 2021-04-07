@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -10,12 +8,8 @@ using Restaurants.Mappers;
 using Restaurants.Services;
 using Restaurants.Services.DTOs;
 using Restaurants.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -44,7 +38,7 @@ namespace Restaurants.UnitTests
         }
 
         [Fact]
-        public async Task IndexReturnsEmptyModelAsync()
+        public async Task GetIndexReturnsEmptyModel()
         {
             // Act
             var result = await _homeController.Index();
@@ -58,7 +52,7 @@ namespace Restaurants.UnitTests
         }
 
         [Fact]
-        public async void IndexReturnsResultsForPostCodeQueryParameter()
+        public async void GetIndexReturnsResultsForPostCodeQueryParameter()
         {
             // Arrange
             var postcode = "PO5 7CD";
@@ -112,7 +106,7 @@ namespace Restaurants.UnitTests
         }
 
         [Fact]
-        public async void IndexReturnsNoResultsForInvalidPostCodeQueryParameter()
+        public async void GetIndexReturnsNoResultsForInvalidPostCodeQueryParameter()
         {
             // Arrange
             var postcode = "ABCD";
@@ -143,7 +137,7 @@ namespace Restaurants.UnitTests
         }
 
         [Fact]
-        public async void IndexReturnsResultsForGeoLocationQueryParameters()
+        public async void GetIndexReturnsResultsForGeoLocationQueryParameters()
         {
             // Arrange
             var page = 1;
@@ -171,7 +165,7 @@ namespace Restaurants.UnitTests
         }
 
         [Fact]
-        public async void IndexReturnsNoResultsForInvalidGeoLocationQueryParameters()
+        public async void GetIndexReturnsNoResultsForInvalidGeoLocationQueryParameters()
         {
             // Arrange
             var page = 1;
@@ -204,7 +198,7 @@ namespace Restaurants.UnitTests
         }
 
         [Fact]
-        public async void IndexReturnsResultsForGeoLocationQueryParametersWithPage2()
+        public async void GetIndexReturnsResultsForGeoLocationQueryParametersWithPage2()
         {
             // Arrange
             var page = 2;
@@ -233,6 +227,54 @@ namespace Restaurants.UnitTests
             _restaurantsServiceMock.Verify(x => x.GetRestaurantsByGeoLocation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Exactly(1));
             _restaurantsServiceMock.Verify(x => x.GetRestaurantsByPostCode(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         }
+
+
+        [Fact]
+        public async Task PostInvalidIndexReturnsErrorModelAsync()
+        {
+            // Arrange
+            _homeController.ModelState.AddModelError("PostCode", "PostCode is required");
+
+            // Act
+            var result = await _homeController.Index(new RestaurantsSearchViewModel());
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.False(viewResult.ViewData.ModelState.IsValid);
+            var model = Assert.IsAssignableFrom<RestaurantsSearchViewModel>(viewResult.ViewData.Model);
+            Assert.False(model.DisplayError);
+
+            _restaurantsServiceMock.Verify(x => x.GetRestaurantsByGeoLocation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+            _restaurantsServiceMock.Verify(x => x.GetRestaurantsByPostCode(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task PostValidIndexReturnsResultsForPostCodeSearch()
+        {
+            var postcode = "PO5 7CD";
+            var page = 1;
+            var pageSize = 10;
+            var mockedSearchResults = GetMockedRestaurantsSearchResults();
+
+            _restaurantsServiceMock.Setup(x => x.GetRestaurantsByPostCode(postcode, page, pageSize))
+                .ReturnsAsync(mockedSearchResults);
+
+            // Act
+            var result = await _homeController.Index(new RestaurantsSearchViewModel { PostCode = postcode });
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsAssignableFrom<RestaurantsSearchViewModel>(viewResult.ViewData.Model);
+            Assert.NotNull(model);
+            Assert.False(model.DisplayError);
+            Assert.Equal(postcode, model.PostCode);
+            Assert.NotEmpty(model.Restaurants.ToList());
+            Assert.Equal(pageSize, model.Restaurants.Count);
+
+            _restaurantsServiceMock.Verify(x => x.GetRestaurantsByGeoLocation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+            _restaurantsServiceMock.Verify(x => x.GetRestaurantsByPostCode(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Exactly(1));
+        }
+
 
         private RestaurantSearchResultsDto GetMockedRestaurantsSearchResults(string postcode = "PO5 7CD", int page = 1, int pageSize = 10)
         {
