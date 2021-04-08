@@ -41,18 +41,21 @@ namespace Restaurants.Services
                 _cache.TryGetValue(cleanPostCode, out RestaurantsSearchResults restaurantsSearchResults);
                 if (restaurantsSearchResults == null)
                 {
+                    _logger.LogDebug($"Search for postcode {cleanPostCode} not found in cache, fetching from API");
                     var response = await _restaurantsApiClient.GetRestaurantsByPostCode(cleanPostCode);
                     var hasNoResults = !response.IsSuccess
                         || response.RestaurantsSearchResults?.Restaurants == null
                         || !response.RestaurantsSearchResults.Restaurants.Any();
                     if (hasNoResults)
                     {
+                        _logger.LogInformation($"Search for postcode {cleanPostCode} found no results");
                         restaurantSearchResultsDto.ErrorMessage = $"No resturants found for postcode: {postcode}";
                     }
                     else
                     {
                         restaurantsSearchResults = response.RestaurantsSearchResults;
                         _cache.Set(cleanPostCode, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        _logger.LogDebug($"Results cached for postcode {cleanPostCode}");
                     }
                 }
                 restaurantSearchResultsDto = BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults, restaurantSearchResultsDto);
@@ -77,6 +80,7 @@ namespace Restaurants.Services
                 _cache.TryGetValue(cacheKey, out RestaurantsSearchResults restaurantsSearchResults);
                 if (restaurantsSearchResults == null)
                 {
+                    _logger.LogDebug($"Search for GeoLocation {cacheKey} not found in cache, fetching from API");
                     var response = await _restaurantsApiClient.GetRestaurantsByLatLong(cleanLatitude, cleanLongitude);
                     var hasNoResults = !response.IsSuccess
                         || response.RestaurantsSearchResults?.Restaurants == null
@@ -86,6 +90,7 @@ namespace Restaurants.Services
                         restaurantSearchResultsDto.ErrorMessage = response.StatusCode == HttpStatusCode.BadRequest ?
                             "Invalid GeoLocation" :
                             "No resturants found for this geolocation";
+                        _logger.LogDebug($"Search for GeoLocation {cacheKey}, {restaurantSearchResultsDto.ErrorMessage}");
                     }
                     else
                     {
@@ -93,6 +98,7 @@ namespace Restaurants.Services
                         _cache.Set(cacheKey, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                         // Adding the postcode to cache so that we get the same results for the postcode search too.
                         _cache.Set(CleanString(restaurantsSearchResults.MetaData.Postcode), restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        _logger.LogDebug($"Results cached for GeoLocation {cacheKey} and postcode {CleanString(restaurantsSearchResults.MetaData.Postcode)}");
                     }
                 }
                 restaurantSearchResultsDto = BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults, restaurantSearchResultsDto);
