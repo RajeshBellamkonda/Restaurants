@@ -9,12 +9,12 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Index">
+        <form id="postcode-search" asp-action="Index">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="PostCode" class="control-label"></label>
-                <input asp-for="PostCode" class="form-control" />
-                <span asp-validation-for="PostCode" class="text-danger"></span>
+                <label asp-for="Postcode" class="control-label"></label>
+                <input asp-for="Postcode" class="form-control" />
+                <span asp-validation-for="Postcode" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Search" class="btn btn-primary" />
@@ -37,7 +37,7 @@
             await Html.RenderPartialAsync("ResturantsPartialView", Model.Restaurants);
 
             <p>
-                <pager class="pager-container" list="@Model.Restaurants" options="@PagedListRenderOptions.Bootstrap4PageNumbersPlusPrevAndNext" asp-action="Index" asp-controller="Home" asp-route-postcode="@Model.PostCode" asp-route-latitude="@Model.Latitude" asp-route-longitude="@Model.Longitude" />
+                <pager class="pager-container" list="@Model.Restaurants" options="@PagedListRenderOptions.Bootstrap4PageNumbersPlusPrevAndNext" asp-action="Index" asp-controller="Home" asp-route-postcode="@Model.Postcode" asp-route-latitude="@Model.Latitude" asp-route-longitude="@Model.Longitude" />
             </p>
         }
         }

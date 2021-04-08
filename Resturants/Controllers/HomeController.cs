@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PagedList.Core;
-using Restaurants.JustEat.Client;
 using Restaurants.Services;
 using Restaurants.Services.DTOs;
 using Restaurants.ViewModels;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -34,7 +31,7 @@ namespace Restaurants.Controllers
         /// <param name="page">The page search results to retrieve</param>
         /// <returns>View for the Restaurants Search</returns>
         [HttpGet]
-        public async Task<IActionResult> Index(string postcode, string latitude, string longitude, int page = 1)
+        public async Task<IActionResult> Index(string postcode = null, string latitude = null, string longitude = null, int page = 1)
         {
             if (!string.IsNullOrEmpty(postcode))
             {
@@ -61,7 +58,7 @@ namespace Restaurants.Controllers
         {
             if (ModelState.IsValid)
             {
-                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
+                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.Postcode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
                 restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
                 return View(restaurantSearchVm);
             }
