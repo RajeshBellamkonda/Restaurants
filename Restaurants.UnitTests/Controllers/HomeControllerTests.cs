@@ -71,7 +71,7 @@ namespace Restaurants.UnitTests
             var model = Assert.IsAssignableFrom<RestaurantsSearchViewModel>(viewResult.ViewData.Model);
             Assert.NotNull(model);
             Assert.False(model.DisplayError);
-            Assert.Equal(postcode, model.PostCode);
+            Assert.Equal(postcode, model.Postcode);
             Assert.NotEmpty(model.Restaurants.ToList());
             Assert.Equal(pageSize, model.Restaurants.Count);
             _restaurantsServiceMock.Verify(x => x.GetRestaurantsByGeoLocation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
@@ -98,7 +98,7 @@ namespace Restaurants.UnitTests
             var model = Assert.IsAssignableFrom<RestaurantsSearchViewModel>(viewResult.ViewData.Model);
             Assert.NotNull(model);
             Assert.False(model.DisplayError);
-            Assert.Equal(postcode, model.PostCode);
+            Assert.Equal(postcode, model.Postcode);
             Assert.NotEmpty(model.Restaurants.ToList());
             Assert.Equal(2, model.Restaurants.Count);
             _restaurantsServiceMock.Verify(x => x.GetRestaurantsByGeoLocation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
@@ -128,7 +128,7 @@ namespace Restaurants.UnitTests
             var model = Assert.IsAssignableFrom<RestaurantsSearchViewModel>(viewResult.ViewData.Model);
             Assert.NotNull(model);
             Assert.True(model.DisplayError);
-            Assert.Equal(postcode, model.PostCode);
+            Assert.Equal(postcode, model.Postcode);
             Assert.Null(model.Restaurants);
             Assert.Equal(expectedErrorMessage, model.ErrorMessage);
 
@@ -157,7 +157,7 @@ namespace Restaurants.UnitTests
             var model = Assert.IsAssignableFrom<RestaurantsSearchViewModel>(viewResult.ViewData.Model);
             Assert.NotNull(model);
             Assert.False(model.DisplayError);
-            Assert.NotNull(model.PostCode);
+            Assert.NotNull(model.Postcode);
             Assert.NotEmpty(model.Restaurants.ToList());
             Assert.Equal(pageSize, model.Restaurants.Count);
             _restaurantsServiceMock.Verify(x => x.GetRestaurantsByGeoLocation(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Exactly(1));
@@ -189,7 +189,7 @@ namespace Restaurants.UnitTests
             var model = Assert.IsAssignableFrom<RestaurantsSearchViewModel>(viewResult.ViewData.Model);
             Assert.NotNull(model);
             Assert.True(model.DisplayError);
-            Assert.Null(model.PostCode);
+            Assert.Null(model.Postcode);
             Assert.Null(model.Restaurants);
             Assert.Equal(expectedErrorMessage, model.ErrorMessage);
 
@@ -220,7 +220,7 @@ namespace Restaurants.UnitTests
             Assert.False(model.DisplayError);
             Assert.Equal(latitude, model.Latitude);
             Assert.Equal(longitude, model.Longitude);
-            Assert.NotNull(model.PostCode);
+            Assert.NotNull(model.Postcode);
             Assert.NotEmpty(model.Restaurants.ToList());
             Assert.Equal(2, model.Restaurants.Count);
 
@@ -260,14 +260,14 @@ namespace Restaurants.UnitTests
                 .ReturnsAsync(mockedSearchResults);
 
             // Act
-            var result = await _homeController.Index(new RestaurantsSearchViewModel { PostCode = postcode });
+            var result = await _homeController.Index(new RestaurantsSearchViewModel { Postcode = postcode });
 
             // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsAssignableFrom<RestaurantsSearchViewModel>(viewResult.ViewData.Model);
             Assert.NotNull(model);
             Assert.False(model.DisplayError);
-            Assert.Equal(postcode, model.PostCode);
+            Assert.Equal(postcode, model.Postcode);
             Assert.NotEmpty(model.Restaurants.ToList());
             Assert.Equal(pageSize, model.Restaurants.Count);
 

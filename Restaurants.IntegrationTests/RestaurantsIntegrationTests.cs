@@ -17,7 +17,7 @@ namespace Restaurants.IntegrationTests
         {
             //Arrange
             var formValues = new List<KeyValuePair<string, string>>(){
-                new KeyValuePair<string, string>("PostCode","SE19")
+                new KeyValuePair<string, string>("Postcode","SE19")
             };
             var defaultPage = await Client.GetAsync("Home");
 

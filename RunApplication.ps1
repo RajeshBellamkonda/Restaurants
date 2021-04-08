@@ -1,0 +1,2 @@
+cd Resturants
+dotnet run

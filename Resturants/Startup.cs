@@ -21,6 +21,7 @@ namespace Restaurants
         // This method gets called by the runtime. Use this method to add services to the container.
         public virtual void ConfigureServices(IServiceCollection services)
         {
+            services.AddHealthChecks();
             var cacheSettings = new CacheSettings();
             Configuration.GetSection(CacheSettings.CacheSettingsName).Bind(cacheSettings);
             services.AddSingleton<ICacheSettings>(cacheSettings);
@@ -59,6 +60,7 @@ namespace Restaurants
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHealthChecks("/healthcheck");
             });
         }
     }

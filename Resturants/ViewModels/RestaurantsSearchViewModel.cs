@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PagedList.Core;
+﻿using PagedList.Core;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -10,7 +9,7 @@ namespace Restaurants.ViewModels
         public const int DefaultPageSize = 10;
 
         [Required]
-        public string PostCode { get; set; }
+        public string Postcode { get; set; }
         public string Latitude { get; set; }
         public string Longitude { get; set; }
         public StaticPagedList<RestaurantViewModel> Restaurants { get; set; }

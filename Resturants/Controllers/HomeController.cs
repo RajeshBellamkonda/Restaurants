@@ -58,7 +58,7 @@ namespace Restaurants.Controllers
         {
             if (ModelState.IsValid)
             {
-                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.PostCode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
+                var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(restaurantSearchVm.Postcode, restaurantSearchVm.Page, restaurantSearchVm.PageSize);
                 restaurantSearchVm = BuildViewModel(restaurantSearchResultsDto);
                 return View(restaurantSearchVm);
             }
