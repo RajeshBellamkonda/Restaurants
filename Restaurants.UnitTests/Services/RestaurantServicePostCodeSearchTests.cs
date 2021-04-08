@@ -59,7 +59,7 @@ namespace Restaurants.UnitTests
             _restaurantsApiClientMock.Setup(x => x.GetRestaurantsByPostCode(postcode))
                 .ReturnsAsync(mockedSearchResults);
 
-            var expectedResult = _mapper.Map<List<RestaurantDto>>(mockedSearchResults.Restaurants).Take(pageSize).ToList();
+            var expectedResult = _mapper.Map<List<RestaurantDto>>(mockedSearchResults.RestaurantsSearchResults.Restaurants).Take(pageSize).ToList();
 
             // Act
             var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(postcode, page, pageSize);
@@ -106,7 +106,7 @@ namespace Restaurants.UnitTests
 
             var mockedSearchResults = GetMockedRestaurantsSearchResults(postcode);
 
-            _cacheMock.Set(postcode, mockedSearchResults);
+            _cacheMock.Set(postcode, mockedSearchResults.RestaurantsSearchResults);
 
             // Act
             var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByPostCode(postcode, page, pageSize);
@@ -167,7 +167,7 @@ namespace Restaurants.UnitTests
             var postcode = "po5 7cd";
             var page = 1;
             var pageSize = 10;
-            RestaurantsSearchResults mockedSearchResults = null;
+            var mockedSearchResults = new RestaurantsClientResponse();
 
             _restaurantsApiClientMock.Setup(x => x.GetRestaurantsByPostCode(postcode))
              .ReturnsAsync(mockedSearchResults);
@@ -220,7 +220,7 @@ namespace Restaurants.UnitTests
             _restaurantsApiClientMock.Setup(x => x.GetRestaurantsByPostCode(postcode))
                 .ReturnsAsync(mockedSearchResults);
 
-            var expectedResult = _mapper.Map<List<RestaurantDto>>(mockedSearchResults.Restaurants).Take(pageSize).ToList();
+            var expectedResult = _mapper.Map<List<RestaurantDto>>(mockedSearchResults.RestaurantsSearchResults.Restaurants).Take(pageSize).ToList();
 
             // Act
             var restaurantSearchResultsDtoP1 = await _restaurantsService.GetRestaurantsByPostCode(postcode, page1, pageSize);
@@ -237,30 +237,34 @@ namespace Restaurants.UnitTests
 
             var pagedMetaData = restaurantSearchResultsDtoP1.Restaurants.GetMetaData();
             Assert.NotNull(pagedMetaData);
-            Assert.Equal(mockedSearchResults.MetaData.ResultCount, pagedMetaData.TotalItemCount);
+            Assert.Equal(mockedSearchResults.RestaurantsSearchResults.MetaData.ResultCount, pagedMetaData.TotalItemCount);
 
             // page2 results
             Assert.NotNull(restaurantSearchResultsDtoP2);
             Assert.Equal(2, restaurantsActualP2.Count);
-            
+
             var pagedMetaData2 = restaurantSearchResultsDtoP2.Restaurants.GetMetaData();
             Assert.NotNull(pagedMetaData2);
-            Assert.Equal(mockedSearchResults.MetaData.ResultCount, pagedMetaData.TotalItemCount);
+            Assert.Equal(mockedSearchResults.RestaurantsSearchResults.MetaData.ResultCount, pagedMetaData.TotalItemCount);
         }
 
         private static string CleanString(string postCode) => postCode.Trim().ToLower();
-        private RestaurantsSearchResults GetMockedRestaurantsSearchResults(string postcode = "PO5 7CD")
+        private RestaurantsClientResponse GetMockedRestaurantsSearchResults(string postcode = "PO5 7CD")
         {
-            return new RestaurantsSearchResults
+            return new RestaurantsClientResponse
             {
-                MetaData = new Metadata
+                IsSuccess = true,
+                RestaurantsSearchResults =
+                new RestaurantsSearchResults
                 {
-                    Latitude = 59.123f,
-                    Longitude = 0.123f,
-                    Postcode = postcode,
-                    ResultCount = 12
-                },
-                Restaurants = new List<Restaurant>
+                    MetaData = new Metadata
+                    {
+                        Latitude = 59.123f,
+                        Longitude = 0.123f,
+                        Postcode = postcode,
+                        ResultCount = 12
+                    },
+                    Restaurants = new List<Restaurant>
                  {
                      new Restaurant{ Name = "R1" },
                      new Restaurant{ Name = "R2" },
@@ -276,6 +280,7 @@ namespace Restaurants.UnitTests
                      new Restaurant{ Name = "R12" }
                  }
 
+                }
             };
         }
     }

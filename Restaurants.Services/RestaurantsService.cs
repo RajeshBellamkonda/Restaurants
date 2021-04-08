@@ -40,14 +40,18 @@ namespace Restaurants.Services
                 _cache.TryGetValue(cleanPostCode, out RestaurantsSearchResults restaurantsSearchResults);
                 if (restaurantsSearchResults == null)
                 {
-                    restaurantsSearchResults = await _restaurantsApiClient.GetRestaurantsByPostCode(cleanPostCode);
-                    if (restaurantsSearchResults?.Restaurants != null && restaurantsSearchResults.Restaurants.Any())
+                    var response = await _restaurantsApiClient.GetRestaurantsByPostCode(cleanPostCode);
+                    var hasNoResults = !response.IsSuccess
+                        || response.RestaurantsSearchResults?.Restaurants == null
+                        || !response.RestaurantsSearchResults.Restaurants.Any();
+                    if (hasNoResults)
                     {
-                        _cache.Set(cleanPostCode, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        restaurantSearchResultsDto.ErrorMessage = $"No resturants found for postcode: {postcode}";
                     }
                     else
                     {
-                        restaurantSearchResultsDto.ErrorMessage = $"No resturants found for postcode: {postcode}";
+                        restaurantsSearchResults = response.RestaurantsSearchResults;
+                        _cache.Set(cleanPostCode, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                     }
                 }
                 restaurantSearchResultsDto = BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults, restaurantSearchResultsDto);
@@ -72,16 +76,20 @@ namespace Restaurants.Services
                 _cache.TryGetValue(cacheKey, out RestaurantsSearchResults restaurantsSearchResults);
                 if (restaurantsSearchResults == null)
                 {
-                    restaurantsSearchResults = await _restaurantsApiClient.GetRestaurantsByLatLong(cleanLatitude, cleanLongitude);
-                    if (restaurantsSearchResults?.Restaurants != null && restaurantsSearchResults.Restaurants.Any())
+                    var response = await _restaurantsApiClient.GetRestaurantsByLatLong(cleanLatitude, cleanLongitude);
+                    var hasNoResults = !response.IsSuccess
+                        || response.RestaurantsSearchResults?.Restaurants == null
+                        || !response.RestaurantsSearchResults.Restaurants.Any();
+                    if (hasNoResults)
                     {
-                        _cache.Set(cacheKey, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
-                        // Adding the postcode to cache so that we get the same results for the postcode search too.
-                        _cache.Set(CleanString(restaurantsSearchResults.MetaData.Postcode), restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        restaurantSearchResultsDto.ErrorMessage = "No resturants found for this geolocation";
                     }
                     else
                     {
-                        restaurantSearchResultsDto.ErrorMessage = "No resturants found for this geolocation";
+                        restaurantsSearchResults = response.RestaurantsSearchResults;
+                        _cache.Set(cacheKey, restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
+                        // Adding the postcode to cache so that we get the same results for the postcode search too.
+                        _cache.Set(CleanString(restaurantsSearchResults.MetaData.Postcode), restaurantsSearchResults, TimeSpan.FromMinutes(_cacheSettings.ExpiryInMinutes));
                     }
                 }
                 restaurantSearchResultsDto = BuildRestaurantSearchResultsDto(page, pageSize, restaurantsSearchResults, restaurantSearchResultsDto);

@@ -7,28 +7,31 @@ namespace Restaurants.IntegrationTests.Mocks
 {
     public class MockRestaurantsApiClient : IRestaurantsApiClient
     {
-        public async Task<RestaurantsSearchResults> GetRestaurantsByLatLong(string latitude, string longitude)
+        public async Task<RestaurantsClientResponse> GetRestaurantsByLatLong(string latitude, string longitude)
         {
             return await Task.Run(() => GetMockedRestaurantsSearchResults());
         }
 
-        public async Task<RestaurantsSearchResults> GetRestaurantsByPostCode(string postcode)
+        public async Task<RestaurantsClientResponse> GetRestaurantsByPostCode(string postcode)
         {
             return await Task.Run(() => GetMockedRestaurantsSearchResults());
         }
 
-        private RestaurantsSearchResults GetMockedRestaurantsSearchResults(string postcode = "PO5 7CD")
+        private RestaurantsClientResponse GetMockedRestaurantsSearchResults(string postcode = "PO5 7CD")
         {
-            return new RestaurantsSearchResults
+            return new RestaurantsClientResponse
             {
-                MetaData = new Metadata
+                IsSuccess = true,
+                RestaurantsSearchResults = new RestaurantsSearchResults
                 {
-                    Latitude = 59.123f,
-                    Longitude = 0.123f,
-                    Postcode = postcode,
-                    ResultCount = 12
-                },
-                Restaurants = new List<Restaurant>
+                    MetaData = new Metadata
+                    {
+                        Latitude = 59.123f,
+                        Longitude = 0.123f,
+                        Postcode = postcode,
+                        ResultCount = 12
+                    },
+                    Restaurants = new List<Restaurant>
                  {
                      new Restaurant{ Name = "R1", LogoUrl= "http://logo1", RatingStars=3, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
                      new Restaurant{ Name = "R2" , LogoUrl= "http://logo2", RatingStars=4, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
@@ -44,6 +47,7 @@ namespace Restaurants.IntegrationTests.Mocks
                      new Restaurant{ Name = "R12", LogoUrl= "http://logo12", RatingStars=9, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
                  }
 
+                }
             };
         }
 

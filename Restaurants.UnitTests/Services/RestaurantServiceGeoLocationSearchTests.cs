@@ -60,7 +60,7 @@ namespace Restaurants.UnitTests
             _restaurantsApiClientMock.Setup(x => x.GetRestaurantsByLatLong(latitude, longitude))
                 .ReturnsAsync(mockedSearchResults);
 
-            var expectedResult = _mapper.Map<List<RestaurantDto>>(mockedSearchResults.Restaurants).Take(pageSize).ToList();
+            var expectedResult = _mapper.Map<List<RestaurantDto>>(mockedSearchResults.RestaurantsSearchResults.Restaurants).Take(pageSize).ToList();
 
             // Act
             var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByGeoLocation(latitude, longitude, page, pageSize);
@@ -112,7 +112,7 @@ namespace Restaurants.UnitTests
 
             var mockedSearchResults = GetMockedRestaurantsSearchResults();
 
-            _cacheMock.Set(cacheKey, mockedSearchResults);
+            _cacheMock.Set(cacheKey, mockedSearchResults.RestaurantsSearchResults);
 
             // Act
             var restaurantSearchResultsDto = await _restaurantsService.GetRestaurantsByGeoLocation(latitude, longitude, page, pageSize);
@@ -180,7 +180,7 @@ namespace Restaurants.UnitTests
             var pageSize = 10;
             var latitude = "59.123";
             var longitude = "0.123";
-            
+
             var mockedSearchResults = GetMockedRestaurantsSearchResults();
             _restaurantsApiClientMock.Setup(x => x.GetRestaurantsByLatLong(latitude, longitude))
                 .ReturnsAsync(mockedSearchResults);
@@ -190,7 +190,7 @@ namespace Restaurants.UnitTests
 
             // Assert
             Assert.NotNull(restaurantSearchResultsDto);
-            _cacheMock.TryGetValue(CleanString(mockedSearchResults.MetaData.Postcode), out var actualResult);
+            _cacheMock.TryGetValue(CleanString(mockedSearchResults.RestaurantsSearchResults.MetaData.Postcode), out var actualResult);
             Assert.NotNull(actualResult);
         }
 
@@ -203,7 +203,7 @@ namespace Restaurants.UnitTests
             var latitude = "59.123";
             var longitude = "0.123";
 
-            RestaurantsSearchResults mockedSearchResults = null;
+            var mockedSearchResults = new RestaurantsClientResponse();
 
             _restaurantsApiClientMock.Setup(x => x.GetRestaurantsByLatLong(latitude, longitude))
                 .ReturnsAsync(mockedSearchResults);
@@ -257,7 +257,7 @@ namespace Restaurants.UnitTests
             var mockedSearchResults = GetMockedRestaurantsSearchResults();
             _restaurantsApiClientMock.Setup(x => x.GetRestaurantsByLatLong(latitude, longitude))
                 .ReturnsAsync(mockedSearchResults);
-            var expectedResult = _mapper.Map<List<RestaurantDto>>(mockedSearchResults.Restaurants).Take(pageSize).ToList();
+            var expectedResult = _mapper.Map<List<RestaurantDto>>(mockedSearchResults.RestaurantsSearchResults.Restaurants).Take(pageSize).ToList();
 
 
             // Act
@@ -275,7 +275,7 @@ namespace Restaurants.UnitTests
 
             var pagedMetaData = restaurantSearchResultsDtoP1.Restaurants.GetMetaData();
             Assert.NotNull(pagedMetaData);
-            Assert.Equal(mockedSearchResults.MetaData.ResultCount, pagedMetaData.TotalItemCount);
+            Assert.Equal(mockedSearchResults.RestaurantsSearchResults.MetaData.ResultCount, pagedMetaData.TotalItemCount);
 
             // page2 results
             Assert.NotNull(restaurantSearchResultsDtoP2);
@@ -283,23 +283,26 @@ namespace Restaurants.UnitTests
 
             var pagedMetaData2 = restaurantSearchResultsDtoP2.Restaurants.GetMetaData();
             Assert.NotNull(pagedMetaData2);
-            Assert.Equal(mockedSearchResults.MetaData.ResultCount, pagedMetaData.TotalItemCount);
+            Assert.Equal(mockedSearchResults.RestaurantsSearchResults.MetaData.ResultCount, pagedMetaData.TotalItemCount);
         }
 
         private static string CleanString(string postCode) => postCode.Trim().ToLower();
         private static string GetCacheKey(string latitude, string longitude) => $"{latitude}_{longitude}";
-        private RestaurantsSearchResults GetMockedRestaurantsSearchResults(string postcode = "PO5 7CD")
+        private RestaurantsClientResponse GetMockedRestaurantsSearchResults(string postcode = "PO5 7CD")
         {
-            return new RestaurantsSearchResults
+            return new RestaurantsClientResponse
             {
-                MetaData = new Metadata
+                IsSuccess = true,
+                RestaurantsSearchResults = new RestaurantsSearchResults
                 {
-                    Latitude = 59.123f,
-                    Longitude = 0.123f,
-                    Postcode = postcode,
-                    ResultCount = 12
-                },
-                Restaurants = new List<Restaurant>
+                    MetaData = new Metadata
+                    {
+                        Latitude = 59.123f,
+                        Longitude = 0.123f,
+                        Postcode = postcode,
+                        ResultCount = 12
+                    },
+                    Restaurants = new List<Restaurant>
                  {
                      new Restaurant{ Name = "R1" },
                      new Restaurant{ Name = "R2" },
@@ -315,6 +318,7 @@ namespace Restaurants.UnitTests
                      new Restaurant{ Name = "R12" }
                  }
 
+                }
             };
         }
     }
