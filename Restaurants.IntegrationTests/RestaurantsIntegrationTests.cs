@@ -1,4 +1,5 @@
-﻿using AngleSharp.Html.Dom;
+﻿using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
 using Restaurants.IntegrationTests.Infrastructure;
 using Restaurants.IntegrationTests.Mocks;
 using System.Collections.Generic;
@@ -32,14 +33,21 @@ namespace Restaurants.IntegrationTests
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var resultsContent = await HtmlHelpers.GetDocumentAsync(response);
-            var resultsList = resultsContent.QuerySelector("table[id='search-results']");
-            Assert.NotNull(resultsList);
-            var resultRows = resultsList.GetElementsByTagName("tr");
-            // including the header row
-            Assert.Equal(11, resultRows.Length);
+            var resultList = resultsContent.QuerySelector("table[id='search-results'] > tbody");
+            var resultRows = resultList.GetElementsByTagName("tr");
+            Assert.NotNull(resultRows);
+            Assert.Equal(10, resultRows.Length);
+            var firstRowData = resultRows.First().GetElementsByTagName("td");
+            // check the logo
+            Assert.Contains("http://logo1", ((IHtmlImageElement)((IHtmlTableDataCellElement)firstRowData[0]).Children.First()).Source);
+            // check the Restaurant Name
+            Assert.Contains("R1", ((IHtmlTableDataCellElement)firstRowData[1]).TextContent);
+            //check the RatingStars
+            Assert.Contains("3", ((IHtmlTableDataCellElement)firstRowData[2]).TextContent);
+            // check the cuisines
+            Assert.Contains("C1", ((IHtmlTableDataCellElement)firstRowData[5]).Children[0].TextContent);
+            Assert.Contains("C2", ((IHtmlTableDataCellElement)firstRowData[5]).Children[1].TextContent);
 
-            var resultsImages = resultsList.GetElementsByTagName("img");
-            Assert.Equal("R1", ((IHtmlImageElement)resultsImages.First()).AlternativeText);
         }
 
         [Fact]
@@ -51,16 +59,23 @@ namespace Restaurants.IntegrationTests
             // Assert
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var content = await HtmlHelpers.GetDocumentAsync(response);
-            var resultsList = content.QuerySelector("table[id='search-results']");
-            Assert.NotNull(resultsList);
-            var resultRows = resultsList.GetElementsByTagName("tr");
-            // including the header row
-            Assert.Equal(11, resultRows.Length);
-
-            var resultsImages = resultsList.GetElementsByTagName("img");
-            Assert.Equal("R1", ((IHtmlImageElement)resultsImages.First()).AlternativeText);
+            var resultsContent = await HtmlHelpers.GetDocumentAsync(response);
+            var resultList = resultsContent.QuerySelector("table[id='search-results'] > tbody");
+            var resultRows = resultList.GetElementsByTagName("tr");
+            Assert.NotNull(resultRows);
+            Assert.Equal(10, resultRows.Length);
+            var firstRowData = resultRows.First().GetElementsByTagName("td");
+            // check the logo
+            Assert.Contains("http://logo1", ((IHtmlImageElement)((IHtmlTableDataCellElement)firstRowData[0]).Children.First()).Source);
+            // check the Restaurant Name
+            Assert.Contains("R1", ((IHtmlTableDataCellElement)firstRowData[1]).TextContent);
+            //check the RatingStars
+            Assert.Contains("3", ((IHtmlTableDataCellElement)firstRowData[2]).TextContent);
+            // check the cuisines
+            Assert.Contains("C1", ((IHtmlTableDataCellElement)firstRowData[5]).Children[0].TextContent);
+            Assert.Contains("C2", ((IHtmlTableDataCellElement)firstRowData[5]).Children[1].TextContent);
         }
+
 
     }
 }

@@ -7,11 +7,6 @@ namespace Restaurants.IntegrationTests.Mocks
 {
     public class MockRestaurantsApiClient : IRestaurantsApiClient
     {
-        public MockRestaurantsApiClient()
-        {
-
-        }
-        //return await Task.Run(() => GetMockPayment(id));
         public async Task<RestaurantsSearchResults> GetRestaurantsByLatLong(string latitude, string longitude)
         {
             return await Task.Run(() => GetMockedRestaurantsSearchResults());
@@ -35,18 +30,18 @@ namespace Restaurants.IntegrationTests.Mocks
                 },
                 Restaurants = new List<Restaurant>
                  {
-                     new Restaurant{ Name = "R1" },
-                     new Restaurant{ Name = "R2" },
-                     new Restaurant{ Name = "R3" },
-                     new Restaurant{ Name = "R4" },
-                     new Restaurant{ Name = "R5" },
-                     new Restaurant{ Name = "R6" },
-                     new Restaurant{ Name = "R7" },
-                     new Restaurant{ Name = "R8" },
-                     new Restaurant{ Name = "R9" },
-                     new Restaurant{ Name = "R10" },
-                     new Restaurant{ Name = "R11" },
-                     new Restaurant{ Name = "R12" }
+                     new Restaurant{ Name = "R1", LogoUrl= "http://logo1", RatingStars=3, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R2" , LogoUrl= "http://logo2", RatingStars=4, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R3" , LogoUrl= "http://logo3", RatingStars=4, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R4" , LogoUrl= "http://logo4", RatingStars=5, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R5" , LogoUrl= "http://logo5", RatingStars=2, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R6" , LogoUrl= "http://logo6", RatingStars=5, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R7" , LogoUrl= "http://logo7", RatingStars=7, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R8" , LogoUrl= "http://logo8", RatingStars=2, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R9" , LogoUrl= "http://logo9", RatingStars=7, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R10", LogoUrl= "http://logo10", RatingStars=3, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R11", LogoUrl= "http://logo11", RatingStars=1, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
+                     new Restaurant{ Name = "R12", LogoUrl= "http://logo12", RatingStars=9, NumberOfRatings=50, RatingAverage=3, Cuisines= new []{ new Cuisine { Name="C1" }, new Cuisine { Name = "C2" }}},
                  }
 
             };
