@@ -43,10 +43,11 @@ https://uk.api.just-eat.io/restaurants/bypostcode/ec4m
 
 My observations:
 - Restful & Single responsibility: I would keep the endpoint simple with specific information - different endpoints for metadata, offers, costs etc.
-- Paging may be better instead of giving back all the results within the same call.
-- Incomplete postcode validation - Implement not found for invalid postcodes and return appropriate API response codes as the geolocation endpoint is returing.  
+- Paging results may be better instead of giving all the search results within the same call.
+- Incomplete postcode validation - Implement Response status 'BadRequest' or 'NotFound' for invalid postcodes and return appropriate API response codes as the geolocation endpoint is returing.  
   For example an invalid postcode search(https://uk.api.just-eat.io/restaurants/bypostcode/abc123) returns 200 response, where as https://uk.api.just-eat.io/restaurants/bypostcode/{postcode} return 400 Bad Request.
-- Using this request I got the ASP.net yellow screen error message.  
+- Using the below request I got the ASP.net yellow screen error message.  
   https://uk.api.just-eat.io/restaurants/bypostcode/<postcode>  
   It should have been a 404 / 400 Response.
-- Some data may not be in correct area like 'Low delivery fee' in Cusine Types.
+- Some data may not be in the correct area for example 'Low delivery fee' in Cusine Types.
+- Response times are around 500ms for the postcode endpoint, simplifying the response model may optimise the performance too.
