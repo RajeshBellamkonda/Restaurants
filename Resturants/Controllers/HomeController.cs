@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PagedList.Core;
-using Restaurants.JustEat.Client;
 using Restaurants.Services;
 using Restaurants.Services.DTOs;
 using Restaurants.ViewModels;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
