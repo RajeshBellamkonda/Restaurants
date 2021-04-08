@@ -8,6 +8,7 @@ using Restaurants.Services.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Restaurants.Services
@@ -82,7 +83,9 @@ namespace Restaurants.Services
                         || !response.RestaurantsSearchResults.Restaurants.Any();
                     if (hasNoResults)
                     {
-                        restaurantSearchResultsDto.ErrorMessage = "No resturants found for this geolocation";
+                        restaurantSearchResultsDto.ErrorMessage = response.StatusCode == HttpStatusCode.BadRequest ?
+                            "Invalid GeoLocation" :
+                            "No resturants found for this geolocation";
                     }
                     else
                     {

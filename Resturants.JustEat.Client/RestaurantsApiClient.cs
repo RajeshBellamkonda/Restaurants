@@ -32,6 +32,7 @@ namespace Restaurants.JustEat.Client
             var response = new RestaurantsClientResponse();
             _logger.LogDebug($"GetRestaurantsByPostCode for postcode {postcode}");
             var result = await _httpClient.GetAsync($"restaurants/bypostcode/{postcode}");
+            response.StatusCode = result.StatusCode;
             response.IsSuccess = result.StatusCode == HttpStatusCode.OK;
             if (response.IsSuccess)
             {
@@ -47,6 +48,7 @@ namespace Restaurants.JustEat.Client
             var response = new RestaurantsClientResponse();
             _logger.LogDebug($"GetRestaurantsByLatLong for latitude:{latitude} & longitude:{longitude}");
             var result = await _httpClient.GetAsync($"restaurants/bylatlong?latitude={latitude}&longitude={longitude}");
+            response.StatusCode = result.StatusCode;
             response.IsSuccess = result.StatusCode == HttpStatusCode.OK;
             if (response.IsSuccess)
             {
